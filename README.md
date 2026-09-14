@@ -1,6 +1,6 @@
 # tensor-public
 
-`tensor-public` is the public, redacted, math-only companion to the private
+`tensor-public` is the public, redacted, math-only companion to my private
 Tensor project. It contains the theoretical manuscript and a small
 reproducibility-oriented Python implementation of the mathematical identities
 that the manuscript defines.
