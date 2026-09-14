@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this public mathematical companion, please cite the repository and its released snapshot. A Zenodo DOI can be added after a repository connection is configured."
+title: "tensor-public: A public math-only companion to the Tensor theoretical specification"
+type: software
+authors:
+  - family-names: Paulson
+    given-names: Blake
+    orcid: "https://orcid.org/0009-0009-2458-2662"
+repository-code: "https://github.com/Blakethefn/tensor-public"
+license: MIT
+version: 0.1.0
+date-released: 2026-09-14
+keywords:
+  - valuation
+  - event risk
+  - mathematical finance
+  - reproducibility

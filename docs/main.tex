@@ -1,0 +1,1157 @@
+\input{preamble}
+
+\title{Pre-Earnings Valuation and Event Risk\\
+  \large A Theoretical Framework for Fair Value, Implied Movement, and Scenario Uncertainty}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper develops a theoretical framework for analyzing expected price
+movement around scheduled earnings events. The framework separates four objects
+that are often collapsed into one: fair value, the market-implied scale of the
+event move, the probability of discrete reaction states, and the extent to
+which a valuation gap can be incorporated into price over the event horizon.
+
+The paper makes four principal contributions. First, it treats the at-the-money
+straddle as a risk-neutral expectation of an absolute move rather than as the
+size of a tail outcome. Second, it shows that a neutral state defined as an
+interval absorbs part of that absolute move, producing a closed-form leakage
+correction. Third, it derives the expected-value and risk expressions for both
+symmetric and asymmetric three-state reaction models. In the asymmetric model,
+the sign of expected value changes when the ratio of downside to upside move
+magnitudes equals the ratio of bullish to bearish probabilities. Fourth, it
+separates fair value from event price through an explicit convergence
+coefficient and derives a sampling-error floor for the directional probability
+tilt.
+
+The paper is a theoretical and methodological specification. It does not
+present fitted parameters, a backtest, or evidence that a deployable forecasting
+system produces economic profits. Its central conclusion is therefore about
+identification: an apparent pre-earnings edge is not determined by a valuation
+gap alone. It depends jointly on event magnitude, directional probabilities,
+downside asymmetry, convergence, and estimation uncertainty.
+
+This paper does not produce a security-specific expected-value forecast. Nor
+should it be treated as a model for producing alpha, a trading signal, or a
+deployable investment recommendation. The equations define theoretical
+identities and identify the inputs and empirical evidence that a future
+forecasting study would need; they do not supply those inputs or establish that
+an alpha exists.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{Introduction}
+%======================================================================
+
+Pre-earnings valuation models commonly combine a fair-value estimate with an
+expected move and then report a single expected return. That compression hides
+several distinct questions. A valuation model concerns the level at which a
+security might be fairly priced. An options market supplies a price for
+dispersion over a specified horizon. A scenario model assigns probabilities to
+possible reactions. A short-horizon price response need not equal the change in
+fair value. Finally, all of these quantities are estimated with error.
+
+This paper develops a common language for those questions. It is deliberately
+more cautious than a trading rule. The object is a coherent theoretical model
+whose assumptions, identities, and failure modes are visible before any
+empirical estimation is attempted.
+
+\subsection{Research question}
+
+Let $P_0$ be the price immediately before the event and let $P_1$ be the price
+at the end of a fixed event window. The central question is:
+
+\begin{quote}
+Under what assumptions can a pre-earnings fair-value estimate imply a
+statistically distinguishable expected event return, once market-implied
+dispersion and asymmetric reaction risk are accounted for?
+\end{quote}
+
+The answer is not a single formula. It is a sequence of distinctions. The
+framework first constructs a valuation gap, then describes event-scale movement,
+then assigns scenario probabilities, and finally states how the valuation gap
+can enter the event-price return. The layers can be estimated separately, but
+they must not be silently added together when they describe the same price
+movement.
+
+\subsection{Theoretical contribution}
+
+The paper contributes the following results.
+
+\begin{enumerate}
+\item \textbf{Event-scale identification.} An at-the-money straddle prices a
+      risk-neutral mean absolute move, not a one-standard-deviation move and
+      not the magnitude of a tail state. The three-state magnitude must
+      therefore be matched to a probability-weighted absolute-move moment.
+\item \textbf{Neutral-band correction.} When the neutral state is an interval,
+      the interval contributes to the mean absolute move. Under a normal
+      reference distribution, the fraction is
+      $\ell_{\mathcal N}(p_N^{\mathrm{ref}})=1-\exp(-z^2/2)$, where
+      $z=\Phi^{-1}((1+p_N^{\mathrm{ref}})/2)$.
+\item \textbf{Asymmetric reaction result.} If downside and upside magnitudes
+      differ, the expected-value sign condition is
+      $p_U=\rho p_B$, where $\rho=m_B/m_U$. Equal tail probabilities are not
+      sufficient for zero expected value once skew is admitted.
+\item \textbf{Identification and precision.} A valuation gap reaches the event
+      price through a convergence coefficient $\kappa$, while the directional
+      edge is driven by a probability tilt whose sampling error must be compared
+      with the tilt at the event counts available for the intended application.
+\end{enumerate}
+
+\subsection{Scope and non-claims}
+
+This is a theoretical preprint, not an empirical finance study. It does not
+claim that any parameter has been estimated from a completed event panel, that
+the probability model is calibrated out of sample, or that a position-sizing
+rule is deployable. Numerical values are explicitly labelled as identities,
+assumptions, or illustrations. The paper does not disclose production
+architecture, implementation details, private data workflows, or proprietary
+forecasting components.
+
+The framework is useful even before estimation because it identifies what an
+empirical study would have to measure. A theoretical result that an edge changes
+sign with an unidentified parameter is itself a result about what cannot be
+inferred from the available inputs.
+
+\subsection{Organization}
+
+Section~\ref{sec:setup} defines the horizons, state space, and notation.
+Section~\ref{sec:value} describes the fair-value layer. Section~\ref{sec:move}
+derives the event-scale correction. Section~\ref{sec:prob} formulates scenario
+probabilities and the market-implied scale benchmark. Section~\ref{sec:kappa} gives the
+fair-value-to-price bridge. Section~\ref{sec:ev} combines the layers without
+double counting and derives the principal closed forms. Section~\ref{sec:error}
+studies uncertainty. Section~\ref{sec:implications} states empirical
+implications and limitations. Appendices collect secondary decision material
+and a fully labelled symbolic illustration.
+
+%======================================================================
+\section{Setup, Horizons, and Notation}
+\label{sec:setup}
+%======================================================================
+
+\subsection{Two horizons}
+
+An earnings model contains at least two horizons:
+
+\[
+\boxed{
+\begin{aligned}
+  H_{\mathrm{event}} &= \text{a prespecified earnings-event window},\\
+  H_{\mathrm{value}} &= \text{the horizon over which fair value is assessed}.
+\end{aligned}}
+\]
+
+A discounted valuation over $H_{\mathrm{value}}$ and an options-implied move
+over $H_{\mathrm{event}}$ are different objects. They may be related only by an
+explicit price-adjustment model. In particular, a multi-period valuation gap must
+not be treated as though it were a one-day expected return.
+
+\subsection{Price, value, and returns}
+
+Let $P_0$ and $P_1$ denote the pre-event and post-event market prices. Let
+$V_0$ and $V_1$ denote the corresponding model-implied fair values. Define
+
+\[
+\Rv_i=\frac{V_i-P_0}{P_0},
+\qquad
+\Rp_i=\frac{P_i-P_0}{P_0},
+\]
+
+where the subscript $i$ denotes a reaction state. The superscripts distinguish
+the valuation return from the realized price return; they are not interchangeable.
+
+\subsection{State space}
+
+The event reaction is represented by an ordered state variable
+$Y\in\{B,N,U\}$: bearish, neutral, and bullish. Let
+
+\[
+\Prob(Y=i)=p_i,
+\qquad
+p_i\ge 0,
+\qquad
+p_B+p_N+p_U=1.
+\]
+
+The three-state representation is a deliberate low-dimensional modeling choice.
+It does not claim that the true return distribution has only three points or
+that its tails are thin. A fixed threshold $a>0$ defines the states before the
+outcomes are observed:
+
+\[
+Y=
+\begin{cases}
+B, & \Rp<-a,\\
+N, & |\Rp|\le a,\\
+U, & \Rp>a.
+\end{cases}
+\]
+
+The threshold is part of the model definition and is not identified by the
+theory. Choosing it after observing which partition produces a desirable
+expected value would make the result a tuning exercise rather than a theoretical
+prediction.
+
+\subsection{Notation}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Symbol & Meaning & Definition or restriction \\
+\midrule
+$P_0,P_1$ & pre- and post-event market price & \\
+$V_0,V_1$ & pre- and post-event fair value & model-implied \\
+$\Rv_i$ & value-gap return in state $i$ & $(V_i-P_0)/P_0$ \\
+$\Rp_i$ & realized event-price return in state $i$ & $(P_i-P_0)/P_0$ \\
+$Y$ & reaction state & $Y\in\{B,N,U\}$ \\
+$p_B,p_N,p_U$ & state probabilities & sum to one \\
+$a$ & neutral-state threshold & fixed before outcomes \\
+$m_{IV}$ & straddle-implied absolute move & approximately $\E^{\mathbb Q}|\Rp|$ \\
+$M$ & physical tail absolute-move budget & defined in Section~\ref{sec:move} \\
+$m_B,m_U$ & downside and upside state magnitudes & positive \\
+$\rho$ & downside-to-upside magnitude ratio & $m_B/m_U$ \\
+$\kappa$ & value-to-price convergence coefficient & free estimand in the core model \\
+$EV$ & expected event return & statistical expected value only \\
+$\gamma$ & relative risk-aversion coefficient & utility parameter \\
+$\Theta$ & enterprise value & never denoted by $EV$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Identification status of inputs}
+
+The equations below do not assign numerical values to the threshold $a$, the
+forecast horizon, the physical adjustment $h$, the tail-asymmetry ratio $\rho$,
+the convergence coefficient $\kappa$, the probability vector, the regularization
+weight $\eta$, or the utility and cost parameters. They are inputs, restrictions,
+or estimands for a later empirical design. The state count and the choice of a
+reference distribution are modeling choices rather than empirical facts. The
+unit scale in $\operatorname{Logistic}(0,1)$ is an identification normalization,
+and constants such as $\sqrt{2/\pi}$ are derived only under the explicitly stated
+normal reference model. Algebraic indices, probability normalization, and
+indicator values are notation, not calibrations.
+
+%======================================================================
+\section{The Fair-Value Layer}
+\label{sec:value}
+%======================================================================
+
+\subsection{Valuation as a range, not a false point estimate}
+
+Different valuation methods often share earnings, growth, discount-rate, and
+capital-structure inputs. Their errors are therefore correlated, so mechanically
+averaging them does not create independent information. A conservative summary
+is a range:
+
+\[
+\boxed{
+V_0\in[V_{\min},V_{\max}],
+\qquad
+V_{\min}=\min_j V_j,
+\quad
+V_{\max}=\max_j V_j.
+}
+\]
+
+When a single reference value is needed for exposition, let $\hat V_0$ be the
+value selected by the stated valuation protocol and let $\varsigma_V$ be its
+uncertainty or dispersion summary. Neither choice is identified by the equations:
+
+\[
+\hat V_0\in[V_{\min},V_{\max}],
+\qquad
+\varsigma_V\ge 0.
+\]
+
+Here $\varsigma_V$ is a protocol-defined uncertainty summary, not automatically
+a sampling standard error. A point estimate becomes a meaningful empirical
+object only when the valuation methods, their dependence, and their out-of-sample
+performance are specified.
+
+\subsection{Forward earnings valuation}
+
+For a $k$-period forecast path,
+
+\[
+EPS_{t+k}=EPS_t\prod_{j=1}^{k}(1+g_{E,j}),
+\qquad
+V_{\mathrm{PE}}=\frac{EPS_{t+k}PE_{t+k}}{(1+r)^k}.
+\]
+
+The justified multiple should respect the curvature of a growth model. One
+optional structural anchor is the Gordon-style expression
+
+\[
+PE^*=\frac{1-b}{r-g_E},
+\qquad g_E<r,
+\]
+
+so a residual log-linear specification can be written as
+
+\[
+\ln PE_f
+=\ln\left(\frac{1-b}{r-g_E}\right)
+ +\alpha_1 ROIC+\alpha_2 M-\alpha_3\sigma-\alpha_4 C+\varepsilon.
+\]
+
+The anchor prevents a negative multiple and makes clear which terms are
+theoretical and which would require estimation.
+
+\subsection{Discounted cash flow}
+
+For completeness, an enterprise-value DCF is
+
+\[
+\Theta_{\mathrm{DCF}}
+=\sum_{t=1}^{T}\frac{FCF_t}{(1+WACC)^t}
+ +\frac{TV_T}{(1+WACC)^T},
+\qquad
+TV_T=\frac{FCF_T(1+g_T)}{WACC-g_T},
+\]
+
+and the implied equity value per share is
+
+\[
+V_{\mathrm{DCF}}
+=\frac{\Theta_{\mathrm{DCF}}+\mathit{Cash}-\mathit{Debt}}{n_{\mathrm{sh}}},
+\qquad g_T<WACC.
+\]
+
+Terminal value is often the dominant term. The framework therefore treats the
+width of the valuation range as part of the result rather than hiding it inside
+a precise-looking discounted cash-flow output.
+
+\subsection{Valuation gap}
+
+The pre-event value gap is
+
+\[
+\boxed{
+D_V=\frac{V_0-P_0}{P_0}.
+}
+\]
+
+Positive $D_V$ means that the model's fair value exceeds the current price. If
+$\hat V_0$ and $\varsigma_V$ are used,
+
+\[
+D_V\pm\frac{\varsigma_V}{P_0}
+\]
+
+is more honest than a point estimate. A gap smaller than the valuation
+dispersion is not evidence of detectable mispricing.
+
+\subsection{Persistent fundamental regimes}
+
+If a valuation path depends on a latent growth regime $G_t$, Bayesian updating
+belongs to that regime rather than to the already-realized event outcome. Let
+$G_t\in\{G_B,G_N,G_U\}$. Then
+
+\[
+\Prob(G_t\mid D_t)
+=\frac{\Prob(D_t\mid G_t)\Prob(G_t)}
+{\sum_j\Prob(D_t\mid G_j)\Prob(G_j)},
+\]
+
+and persistence can be represented by
+
+\[
+A_{ij}=\Prob(G_{t+1}=j\mid G_t=i),
+\qquad
+\Prob(G_{t+1}=j)=\sum_i\Prob(G_t=i\mid D_t)A_{ij}.
+\]
+
+This is a structural option for the valuation layer. It does not provide an
+empirical estimate of the transition matrix.
+
+%======================================================================
+\section{The Event-Scale Layer}
+\label{sec:move}
+%======================================================================
+
+\subsection{What an at-the-money straddle measures}
+
+For an at-the-money straddle with strike close to the relevant forward price,
+use the shorthand that any required discounting, dividend, and spot--forward
+conversions have already been made, and define the observed premium on the
+event-window return scale as
+
+\[
+\boxed{
+m_{IV}\equiv\frac{C_{ATM}+P_{ATM}}{P_0}
+\approx\E^{\mathbb Q}|\Rp|.
+}
+\]
+
+The approximation suppresses the discounting, dividend, spot--forward, and
+strike adjustments needed to express the straddle premium as a return moment.
+Those adjustments must be made explicitly in an empirical implementation. It
+also does not identify the physical distribution. Under a centered short-horizon
+normal reference model,
+
+\[
+m_{IV}\approx\sqrt{\frac{2}{\pi}}\,\sigma\sqrt{T}
+\]
+
+\newpage
+
+Here $\sigma$ is the reference volatility scale per unit time and $T$ is the
+event-horizon length measured in the same time units. The normal expression is a
+derived identity conditional on that reference distribution; it is not a general
+property of the straddle. The risk-neutral
+absolute move is not automatically a physical expected move. Let $h>0$ denote
+an explicit physical-to-risk-neutral scale adjustment. The value and even the
+direction of that adjustment are not identified by the theory and no numerical
+value is assigned to it here.
+
+\subsection{Tail magnitude in a symmetric three-state model}
+
+If $\Rp\in\{-m,0,+m\}$, then
+
+\[
+\E|\Rp|=m(p_B+p_U).
+\]
+
+If the neutral state were a point mass at zero and $p_B+p_U>0$, consistency
+with the adjusted absolute-move budget $h m_{IV}$ would require
+
+\[
+m=\frac{h m_{IV}}{p_B+p_U}.
+\]
+
+This is already different from setting $m=m_{IV}$: that shortcut ignores both
+tail concentration and the unidentified physical-to-risk-neutral scale
+adjustment, so it is not generally justified.
+
+\subsection{Neutral-band leakage under a normal reference}
+\label{sec:leak}
+
+The neutral state is an interval in the underlying return distribution, even
+though the three-state payoff approximation represents it by one value. To
+derive a reference correction, suppose a centered normal return
+$X\sim\mathcal N(0,s_{\mathcal N}^2)$ is used and the neutral band is
+$|X|\le z s_{\mathcal N}$, so the threshold in Section~\ref{sec:setup} is
+$a=z s_{\mathcal N}$. Its reference probability is
+$p_N^{\mathrm{ref}}=2\Phi(z)-1$, and
+
+\[
+\E|X|=2s_{\mathcal N}\varphi(0),
+\]
+
+while the absolute move inside the neutral band is
+
+\[
+\E\left[|X|\mathbf 1\{|X|\le z s_{\mathcal N}\}\right]
+=2s_{\mathcal N}\left(\varphi(0)-\varphi(z)\right).
+\]
+
+The fraction of the absolute-move budget absorbed by the neutral state is
+
+\[
+\boxed{
+\ell_{\mathcal N}(p_N^{\mathrm{ref}})=1-\frac{\varphi(z)}{\varphi(0)}
+=1-e^{-z^2/2},
+\qquad
+z=\Phi^{-1}\left(\frac{1+p_N^{\mathrm{ref}}}{2}\right).
+}
+\]
+
+If this normal reference is also used to construct the physical tail budget,
+define
+
+\[
+\boxed{
+M=h m_{IV}\bigl(1-\ell_{\mathcal N}(p_N^{\mathrm{ref}})\bigr).
+}
+\]
+
+If a conditional model supplies a physical $p_N$, that probability must remain
+separate from $p_N^{\mathrm{ref}}$; replacing the normal-reference probability
+with a conditional estimate would be an additional assumption. In the general
+model, $M$ is therefore a separately specified or estimated physical tail
+absolute-move budget. Given that budget, the symmetric three-state magnitude is
+
+\[
+\boxed{
+m=\frac{M}{p_B+p_U}.
+}
+\]
+
+\subsection{A reference distributional mapping, not an options-implied distribution}
+
+The straddle identifies an absolute-move moment under the risk-neutral measure;
+it does not identify physical probabilities for the three states. To obtain
+state probabilities, one must specify a physical reference distribution and a
+threshold $a$:
+
+\[
+\boxed{
+\begin{aligned}
+p_B^{\mathrm{ref}}&=\Prob_{\mathbb P}(\Rp<-a),\\
+p_N^{\mathrm{ref}}&=\Prob_{\mathbb P}(|\Rp|\le a),\\
+p_U^{\mathrm{ref}}&=\Prob_{\mathbb P}(\Rp>a).
+\end{aligned}}
+\]
+
+For example, if a centered normal physical reference with scale
+$s_{\mathbb P}>0$ is imposed, then
+
+\[
+p_N^{\mathrm{ref}}=2\Phi\left(\frac{a}{s_{\mathbb P}}\right)-1,
+\qquad
+p_B^{\mathrm{ref}}=p_U^{\mathrm{ref}}
+=\frac{1-p_N^{\mathrm{ref}}}{2}.
+\]
+
+Equating $s_{\mathbb P}$ with a risk-neutral scale inferred from $m_{IV}$ would
+be an additional physical/risk-neutral equivalence assumption, not a consequence
+of the straddle. The paper therefore does not assign numerical values to a
+supposed ``options-implied'' probability vector. It uses only the explicitly
+labelled symmetry benchmark $p_B=p_U$ with $p_N$ left symbolic. With symmetric
+tail magnitudes, that benchmark implies
+
+\[
+\boxed{
+EV_0=m(p_U-p_B)=0
+}
+\]
+
+by identity. A zero produced by this benchmark is not evidence that a predictive
+model reconstructed market efficiency; no predictive model has been evaluated.
+
+%======================================================================
+\section{Scenario Probabilities}
+\label{sec:prob}
+%======================================================================
+
+\subsection{State labels and probability sources}
+
+The thresholds defining $B$, $N$, and $U$ must be fixed before outcomes are
+observed. Once they are fixed, a probability vector can come from one of three
+distinct sources:
+
+\begin{enumerate}
+\item the market-implied absolute-move scale together with a separately stated
+      physical probability benchmark;
+\item an unconditional historical frequency;
+\item a fitted conditional model $\hat p_i(x)=\Prob(Y=i\mid X=x)$.
+\end{enumerate}
+
+These sources must not be reported as though they were interchangeable. In
+particular, the absolute-move moment from options does not supply the physical
+state probabilities, and any benchmark vector is an assumption rather than a
+result of the conditional model.
+
+\subsection{Ordered probability model}
+
+Because $B\prec N\prec U$, one possible parametric specification is an
+ordered-logit model. This is a modeling choice, not a consequence of the state
+ordering. Let
+
+\[
+y^*=x^{\!\top}\beta+\varepsilon,
+\qquad
+\varepsilon\sim\operatorname{Logistic}(0,1),
+\qquad c_1<c_2.
+\]
+
+The unit scale in the logistic error is a normalization for identification, not
+a calibrated dispersion value. With $\Lambda(z)=1/(1+e^{-z})$,
+
+\[
+\boxed{
+\begin{aligned}
+\Prob(Y=B\mid x)&=\Lambda(c_1-x^{\!\top}\beta),\\
+\Prob(Y=N\mid x)&=\Lambda(c_2-x^{\!\top}\beta)-\Lambda(c_1-x^{\!\top}\beta),\\
+\Prob(Y=U\mid x)&=1-\Lambda(c_2-x^{\!\top}\beta).
+\end{aligned}}
+\]
+
+The ordering reduces the parameter count and imposes the economically coherent
+restriction that a feature shifting probability toward $U$ shifts it away from
+$B$. An unrestricted multinomial model can be used, but it requires an explicit
+reference-class constraint; otherwise its latent scores are unidentified under
+common shifts.
+
+\subsection{Separate surprise and reaction channels}
+
+Fundamental variables may predict the earnings surprise, while positioning
+variables may predict the price reaction conditional on that surprise. A
+conceptual factorization is
+
+\[
+\boxed{
+\Prob(\Rp)
+=\sum_s \Prob(\Rp\mid s,\text{positioning})
+\Prob(s\mid\text{fundamentals}).
+}
+\]
+
+This distinction is structural. A strong earnings result need not produce a
+positive event return if optimistic expectations were already priced. Combining
+the channels without a stated factorization can turn a reaction effect into a
+spurious earnings-quality effect.
+
+\subsection{Regularization and temporal ordering}
+
+If the ordered-logit model is estimated, one possible regularized objective is
+
+\[
+\hat\beta
+=\arg\min_\beta\left[
+-\sum_{t=1}^{T}\ln\Prob(Y_t\mid X_t;\beta)
+ +\eta\|\beta\|_2^2
+\right],
+\]
+
+where $\eta\ge 0$ is selected using time-ordered validation. Standardization
+constants must also be computed on the training window alone. These are
+requirements for a future empirical study, not evidence that the model has
+already been fitted.
+
+%======================================================================
+\section{From Fair Value to Event Price}
+\label{sec:kappa}
+%======================================================================
+
+\subsection{The convergence coefficient}
+
+Fair value and market price are different variables. A minimal bridge is
+
+\[
+\boxed{
+P_1=P_0+\kappa(V_1-P_0)+\epsilon,
+\qquad
+\E[\epsilon\mid V_1]=0.
+}
+\]
+
+Dividing by $P_0$ gives
+
+\[
+\boxed{
+\Rp=\kappa\Rv+\frac{\epsilon}{P_0},
+\qquad
+\E[\Rp]=\kappa\E[\Rv].
+}
+\]
+
+The coefficient $\kappa$ is not a convenience parameter. It is the statement
+about how much of a modeled value gap becomes price movement over the event
+horizon. The core theory leaves its sign and magnitude unrestricted. An
+application may impose a partial-convergence or no-overshoot restriction, but
+that would be an additional modeling assumption. Treating the entire modeled
+gap as an immediate event return is the special full-convergence case and is not
+implied by the valuation equations.
+
+\subsection{Why an intercept is required}
+
+An empirical version of the bridge should be written across events as
+
+\[
+\Rp_{j,t}=\alpha+\kappa\Rv_{j,t}+\epsilon_{j,t}.
+\]
+
+The intercept is not optional. A common event premium, omitted variable, or
+other non-valuation component belongs in $\alpha$ rather than being forced into
+$\kappa$. A regression through the origin can therefore attribute a mean event
+return to the valuation gap and inflate the apparent convergence coefficient.
+
+\subsection{Measurement error}
+
+The valuation gap is itself estimated. If the measured regressor equals
+$\Rv+u$, where $u$ is mean-zero classical measurement error independent of the
+true regressor and structural error with variance $\varsigma_V^2/P_0^2$, then
+the usual attenuation expression is
+
+\[
+\boxed{
+\operatorname{plim}\hat\kappa
+=\kappa\frac{\Var(\Rv)}
+{\Var(\Rv)+\varsigma_V^2/P_0^2}.
+}
+\]
+
+The direction is toward zero. A future empirical study must therefore report
+the valuation uncertainty and must not interpret an uncorrected insignificant
+slope as proof that valuation has no relation to event returns.
+
+\subsection{No double counting}
+
+There are two related but distinct ways to describe an event return:
+
+\begin{enumerate}
+\item a scenario-payoff model assigns $\Rp_i$ directly to reaction states and
+      computes $\sum_i p_i\Rp_i$;
+\item a valuation model assigns $\Rv_i$ and maps it into price through
+      $\kappa\sum_i p_i\Rv_i$.
+\end{enumerate}
+
+If the valuation gap is already used to define the state payoffs, the second
+quantity is not an additional return to be added on top. A complete empirical
+model must specify whether the valuation channel changes the state magnitudes,
+the state probabilities, or a separate component of the price innovation.
+
+%======================================================================
+\section{Expected Value and Closed Forms}
+\label{sec:ev}
+%======================================================================
+
+\subsection{General expected event return}
+
+For state-dependent price returns,
+
+\[
+\boxed{
+EV=\E[\Rp]=\sum_{i\in\{B,N,U\}}p_i\Rp_i.
+}
+\]
+
+The notation $EV$ means expected value in the statistical sense only. Enterprise
+value is $\Theta$ throughout.
+
+For the symmetric event-payoff model $\Rp\in\{-m,0,+m\}$,
+
+\[
+\boxed{
+EV=m(p_U-p_B).
+}
+\]
+
+The directional edge is therefore the probability tilt $p_U-p_B$ multiplied by
+the event magnitude. A separately imposed symmetric benchmark has zero tilt by
+construction; the straddle alone does not impose that symmetry.
+
+\subsection{Asymmetric event payoffs}
+\label{sec:asym}
+
+Let
+
+\[
+\Rp\in\{-m_B,0,+m_U\},
+\qquad
+\rho=\frac{m_B}{m_U}>0.
+\]
+
+The adjusted tail absolute-move budget $M$ supplies the moment equation
+
+\[
+p_Bm_B+p_Um_U=M.
+\]
+
+Solving with $m_B=\rho m_U$ gives
+
+\[
+\boxed{
+m_U=\frac{M}{\rho p_B+p_U},
+\qquad
+m_B=\frac{\rho M}{\rho p_B+p_U}.
+}
+\]
+
+Expected value is then
+
+\[
+\boxed{
+EV=M\frac{p_U-\rho p_B}{\rho p_B+p_U}.
+}
+\]
+
+The zero-edge condition is
+
+\[
+\boxed{
+EV=0\quad\Longleftrightarrow\quad p_U=\rho p_B.
+}
+\]
+
+The symmetric condition $p_U=p_B$ is a special case, not a general result.
+
+\subsection{Symmetric closed forms}
+
+For the symmetric model, write, for a nondegenerate tail and return variance,
+
+\[
+t=p_U-p_B,
+\qquad
+q=p_U+p_B,
+\qquad
+m=\frac{M}{q}.
+\]
+
+The mean, variance, risk-adjusted ratio, and exact discrete Kelly fraction are
+
+\[
+\boxed{
+\begin{aligned}
+EV&=\frac{Mt}{q},\\[3pt]
+\Var(\Rp)&=\left(\frac{M}{q}\right)^2(q-t^2),\\[3pt]
+\frac{EV}{\sigma_{\Rp}}&=\frac{t}{\sqrt{q-t^2}},\\[3pt]
+f^*&=\frac{t}{M}.
+\end{aligned}}
+\]
+
+The risk-adjusted ratio is independent of the absolute move scale. The exact
+Kelly expression follows by maximizing
+$\sum_i p_i\ln(1+f\Rp_i)$ over the three outcomes; it is not a recommendation
+to use Kelly sizing when probabilities are uncertain.
+
+\subsection{Neutral probability and structural invariance}
+
+Holding the tail ratio $p_U:p_B$ fixed, the neutral probability affects the
+event mean only through the leakage term in $M$ when $M$ is constructed from the
+normal reference in Section~\ref{sec:leak}. If $M$ is separately estimated, the
+neutral probability does not enter the expected-value formula in this
+three-state payoff specification. This is a useful diagnostic: a complicated
+three-state model does not automatically gain decision information from
+estimating $p_N$.
+
+%======================================================================
+\section{Risk and Estimation Error}
+\label{sec:error}
+%======================================================================
+
+\subsection{Downside risk}
+
+Variance penalizes positive and negative movement symmetrically. For a threshold
+$\tau$ and power $n\ge 1$, define the lower partial moment
+
+\[
+\boxed{
+\operatorname{LPM}_n(\tau)
+=\sum_i p_i\left[\max(\tau-\Rp_i,0)\right]^n.
+}
+\]
+
+For the conventional zero-return benchmark $\tau=0$ (a choice of benchmark,
+not a theoretical implication), downside deviation is
+$\sqrt{\operatorname{LPM}_2(0)}$. In the symmetric three-state model,
+
+\[
+\operatorname{LPM}_1(0)=p_Bm,
+\qquad
+\sqrt{\operatorname{LPM}_2(0)}=m\sqrt{p_B}.
+\]
+
+The resulting Sortino-like ratio is $t/\sqrt{p_B}$, so it is also degenerate
+under symmetry. A downside-sensitive statistic becomes informative only after
+asymmetry is admitted.
+
+\subsection{Sampling-error floor}
+
+For unconditional multinomial proportions based on independent event
+observations with a fixed probability vector,
+
+\[
+\boxed{
+\Var(\hat p_U-\hat p_B)
+=\frac{p_U(1-p_U)+p_B(1-p_B)+2p_Up_B}{n}.
+}
+\]
+
+Therefore, in the symmetric model, the corresponding multinomial sampling
+floor for the expected return is
+
+\[
+\boxed{
+\se_{\mathrm{floor}}(\widehat{EV})
+=m\sqrt{\frac{p_U(1-p_U)+p_B(1-p_B)+2p_Up_B}{n}}.
+}
+\]
+
+This is a lower bound on the uncertainty of a fitted conditional model, not its
+standard error. A conditional probability estimate also carries coefficient
+uncertainty, covariance, model-selection uncertainty, uncertainty in $m$, and
+possible dependence across event observations. A model that reports a point
+estimate without an interval is therefore incomplete.
+
+\subsection{Scale-free significance}
+
+Holding $m$ fixed in the multinomial sampling calculation, both $EV$ and its
+sampling floor scale linearly in $m$, so their ratio does not depend on the
+absolute event magnitude. Changing the straddle-to-tail
+mapping can change the dollar or percentage estimate without changing the basic
+significance problem. Directional information is the bottleneck.
+
+\subsection{Illustrative sensitivity}
+
+Let $(\tilde p_B,\tilde p_N,\tilde p_U)$ denote any hypothetical conditional
+probability vector with $\tilde p_U>\tilde p_B$. It is distinct from the
+symmetric benchmark and is used only to show how a directional tilt enters the
+formulas. Under symmetry,
+
+\[
+EV_{\mathrm{sym}}
+=M\frac{\tilde p_U-\tilde p_B}{\tilde p_B+\tilde p_U}.
+\]
+
+If the downside magnitude is asymmetric, then
+
+\[
+EV_{\mathrm{asym}}
+=M\frac{\tilde p_U-\rho\tilde p_B}
+{\rho\tilde p_B+\tilde p_U}.
+\]
+
+The edge is exactly zero at $\rho=\tilde p_U/\tilde p_B$ and changes sign
+above that value. No numerical probability vector or physical-move haircut is
+needed to establish this result.
+
+%======================================================================
+\section{Theoretical Implications and Empirical Program}
+\label{sec:implications}
+%======================================================================
+
+\subsection{What the theory predicts}
+
+The framework produces testable implications without claiming that they have
+already been tested:
+
+\begin{enumerate}
+\item A fitted probability model must beat both an unconditional historical
+      base rate and a pre-specified physical benchmark on proper out-of-sample
+      scoring rules if it is to claim incremental probability information.
+\item The valuation layer should be evaluated through an intercept-inclusive
+      estimate of $\kappa$, with measurement error in the value gap reported.
+\item The downside-to-upside ratio $\rho$ should be estimated before a
+      directional expected value is interpreted, because it can reverse the
+      sign of the result.
+\item Any economic evaluation should use event returns and appropriate
+      transaction-cost, liquidity, and alternative-investment benchmarks rather
+      than treating zero return as the only alternative.
+\end{enumerate}
+
+\subsection{A falsification protocol}
+
+A future empirical study should use time-ordered training and test periods,
+walk-forward refitting, and probability calibration metrics such as Brier score,
+log loss, and expected calibration error. For probabilities $\hat p_{i,t}$ and
+realized state $Y_t$,
+
+\[
+\operatorname{Brier}
+=\frac1T\sum_{t=1}^{T}\sum_i
+\left(\hat p_{i,t}-\mathbf 1\{Y_t=i\}\right)^2,
+\qquad
+\operatorname{LogLoss}
+=-\frac1T\sum_{t=1}^{T}\ln\hat p_{Y_t,t}.
+\]
+
+The economic test is separate from the probability test. A well-calibrated
+probability model need not generate a profitable strategy after costs, and a
+profitable strategy need not identify which part of the return came from
+valuation, positioning, or a broad announcement premium.
+
+\subsection{Position in the literature}
+
+The framework is consistent with the literature's distinction between event
+information, announcement returns, and post-earnings drift. Earnings
+announcements have long been treated as information events
+\cite{beaver1968,ball1968,chari1988}. Cross-sectional announcement premia and
+their limits to arbitrage have been documented in diversified portfolios
+\cite{cohen2007,frazzini2007,savor2016,barber2013}. Post-earnings drift is a
+separate phenomenon because the surprise is known after the event
+\cite{bernard1989,linnainmaa2019}.
+
+Those findings motivate the model's caution; they do not validate a particular
+single-name forecast or any parameter used in the illustrations.
+
+%======================================================================
+\section{Limitations and Boundary Conditions}
+\label{sec:limitations}
+%======================================================================
+
+\begin{enumerate}
+\item The three-state approximation discards fat tails and path dependence.
+      This is a deliberate low-dimensional representation, not a claim that
+      the true event distribution has three points.
+\item $h$, the physical adjustment from the risk-neutral straddle moment, is
+      not identified here.
+\item $\rho$ is not estimated. Since it determines the zero-edge condition, no
+      asymmetric expected-value conclusion is empirical in this paper.
+\item $\kappa$ is not estimated. A fair-value gap does not become an event
+      return without an empirically supported price-convergence relation.
+\item The surprise variables require forecasts of actual earnings, revenue,
+      guidance, and persistence. If those forecasts add no information beyond
+      consensus, the fundamental branch contributes no incremental edge.
+\item Implied-volatility crush, liquidity, trading halts, guidance withdrawal,
+      taxes, and transaction costs require separate models when an economic
+      application is attempted.
+\item The straddle identifies an absolute-move moment, not physical state
+      probabilities. Any numerical probability benchmark is an explicit
+      distributional assumption and should not be described as a forecast.
+\end{enumerate}
+
+%======================================================================
+\section{Conclusion}
+%======================================================================
+
+The main theoretical result is a negative one in the useful scientific sense:
+a pre-earnings expected-value claim is underdetermined when it reports only a
+fair-value gap and a symmetric implied move. The straddle supplies an absolute
+move moment, not a tail magnitude. A neutral band absorbs part of that moment.
+Directional value depends on a probability tilt, while the sign under realistic
+asymmetry depends on the ratio of downside to upside magnitudes. A valuation gap
+reaches price only through a convergence coefficient, and the uncertainty of the
+probability tilt must be quantified relative to the event counts available for a
+single name.
+
+The framework therefore defines a disciplined research object rather than a
+validated trading system. Its null is explicit, its parameters are separated,
+its assumptions are visible, and its empirical requirements are stated. A future
+study may estimate the parameters and test the implications. Until then, the
+theory's appropriate conclusion is not that an edge exists, but that any claimed
+edge must survive the magnitude, asymmetry, convergence, and uncertainty tests
+derived here.
+
+\appendix
+
+%======================================================================
+\section{Secondary Decision Quantities}
+\label{app:decision}
+%======================================================================
+
+This appendix records quantities that are useful for an eventual application but
+are not needed for the theoretical contribution.
+
+\subsection{Mean-variance utility}
+
+For an action $a$ with event return $\Rp_a$, a local mean-variance approximation
+to a CRRA objective, after normalizing by a reference wealth level, is
+
+\[
+U(a)=\E[\Rp_a]-\frac{\gamma}{2}\Var(\Rp_a)-C(a),
+\]
+
+where $\gamma>0$ is an unspecified relative-risk-aversion parameter and $C(a)$
+collects trading, tax, liquidity, and other action-specific costs. The
+comparison is against the best alternative, not automatically against zero. For
+the costless analytical benchmark with the alternative normalized to zero, the
+break-even risk-aversion coefficient in the symmetric model is
+
+\[
+\boxed{
+\gamma^*=\frac{2tq}{M(q-t^2)}.
+}
+\]
+
+This expression is a sensitivity result. It is not a recommendation to infer an
+investor's risk aversion from a single event.
+
+\subsection{Kelly sizing}
+
+Under known probabilities, no transaction costs, and no position or leverage
+constraints, the exact growth-optimal fraction in the symmetric three-state
+model, over the feasible domain $1+f\Rp_i>0$, is
+
+\[
+f^*=\frac{t}{M}.
+\]
+
+The exact expression does not account for parameter uncertainty, costs,
+constraints, or model risk. Any practical use would therefore require an
+externally specified decision rule for shrinking or otherwise restricting the
+fraction.
+
+%======================================================================
+\section{Illustrative Calculation}
+\label{app:illustration}
+%======================================================================
+
+The following calculation is included only to make the identities concrete. It
+is not a stock forecast and uses no observed event data.
+
+Let $a$ be a pre-registered neutral threshold and let a hypothetical centered
+normal physical reference distribution be $\mathcal N(0,s_{\mathbb P}^2)$, with
+$s_{\mathbb P}>0$. Then
+
+\[
+p_N^{\mathrm{ref}}=2\Phi\left(\frac{a}{s_{\mathbb P}}\right)-1,
+\qquad
+p_B^{\mathrm{ref}}=p_U^{\mathrm{ref}}
+=\frac{1-p_N^{\mathrm{ref}}}{2}.
+\]
+
+For any hypothetical conditional vector
+$(\tilde p_B,\tilde p_N,\tilde p_U)$ with nonnegative components summing to
+one, define
+
+\[
+\tilde q=\tilde p_B+\tilde p_U,
+\qquad
+\tilde t=\tilde p_U-\tilde p_B,
+\qquad
+M>0.
+\]
+
+Here $M$ is a separately specified physical tail absolute-move budget; it is
+not inferred from $\tilde p_N$ unless the additional normal-reference mapping
+and physical-scale assumptions are imposed.
+
+The symmetric and asymmetric expected values are respectively
+
+\[
+EV_{\mathrm{sym}}=M\frac{\tilde t}{\tilde q},
+\qquad
+EV_{\mathrm{asym}}=M\frac{\tilde p_U-\rho\tilde p_B}
+{\rho\tilde p_B+\tilde p_U}.
+\]
+
+When $\tilde p_B>0$, the asymmetric edge changes sign at
+$\rho=\tilde p_U/\tilde p_B$. This symbolic result is the point of the
+illustration; no arbitrary numerical probability vector is needed.
+
+%======================================================================
+\addcontentsline{toc}{section}{References}
+\begin{thebibliography}{99}
+
+\bibitem{ball1968}
+Ball, R. and Brown, P. (1968). An Empirical Evaluation of Accounting Income
+Numbers. \emph{Journal of Accounting Research}, 6(2), 159--178.
+
+\bibitem{barber2013}
+Barber, B. M., De George, E. T., Lehavy, R. and Trueman, B. (2013). The
+Earnings Announcement Premium Around the Globe. \emph{Journal of Financial
+Economics}, 108(1), 118--138.
+
+\bibitem{beaver1968}
+Beaver, W. H. (1968). The Information Content of Annual Earnings Announcements.
+\emph{Journal of Accounting Research}, 6, 67--92.
+
+\bibitem{bernard1989}
+Bernard, V. L. and Thomas, J. K. (1989). Post-Earnings-Announcement Drift:
+Delayed Price Response or Risk Premium? \emph{Journal of Accounting Research},
+27, 1--36.
+
+\bibitem{chari1988}
+Chari, V. V., Jagannathan, R. and Ofer, A. R. (1988). Seasonalities in Security
+Returns: The Case of Earnings Announcements. \emph{Journal of Financial
+Economics}, 21(1), 101--121.
+
+\bibitem{cohen2007}
+Cohen, D. A., Dey, A., Lys, T. Z. and Sunder, S. V. (2007). Earnings
+Announcement Premia and the Limits to Arbitrage. \emph{Journal of Accounting
+and Economics}, 43(2--3), 153--180.
+
+\bibitem{frazzini2007}
+Frazzini, A. and Lamont, O. (2007). The Earnings Announcement Premium and
+Trading Volume. NBER Working Paper No. 13090.
+
+\bibitem{linnainmaa2019}
+Linnainmaa, J. T. and Zhang, C. Y. (2019). The Earnings Announcement Return
+Cycle. Working paper, SSRN 3183318.
+
+\bibitem{savor2016}
+Savor, P. and Wilson, M. (2016). Earnings Announcements and Systematic Risk.
+\emph{Journal of Finance}, 71(1), 83--138.
+
+\end{thebibliography}
+
+\end{document}

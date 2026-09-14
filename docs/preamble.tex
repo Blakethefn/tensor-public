@@ -1,0 +1,27 @@
+% Shared preamble for the public math-only manuscript.
+% Included by docs/main.tex via \input{preamble} as its first line.
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+% Return-type notation used throughout the manuscript.
+%   \Rv  value-gap return   (V_i - P_0)/P_0, horizon H_value
+%   \Rp  realized price return,              horizon H_event
+% These are kept here deliberately: conflating the two was the root
+% error in the v1 model, and a shared definition keeps them distinct.
+\newcommand{\Rv}{R^{\mathrm{val}}}
+\newcommand{\Rp}{R^{\mathrm{px}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\se}{\operatorname{se}}
+
+\author{Blake Paulson}
+\date{September 2026}
